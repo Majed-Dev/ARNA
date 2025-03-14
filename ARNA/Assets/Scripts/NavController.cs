@@ -7,16 +7,13 @@ public class NavController : MonoBehaviour {
 
     public AStar AStar;
     private Transform destination;
-    private bool _initialized = false;
-    private bool _initializedComplete = false;
-    [SerializeField] private List<Node> path = new List<Node>();
+    private bool initialized = false;
+    private List<Node> path = new List<Node>();
     private int currNodeIndex = 0;
     private float maxDistance = 1.1f;
 
     private void Start() {
-#if UNITY_EDITOR
-        InitializeNavigation();
-#endif
+        InitNav();
     }
 
     /// <summary>
@@ -37,28 +34,15 @@ public class NavController : MonoBehaviour {
         return closestNode;
     }
 
-    public void InitializeNavigation() {
-        StopAllCoroutines();
-        StartCoroutine(DelayNavigation());
-    }
-
-    IEnumerator DelayNavigation() {
-        while(FindObjectOfType<DiamondBehavior>() == null){
-            yield return new WaitForSeconds(.5f);
-            Debug.Log("waiting for shapes to load...");
-        }
-        InitNav();
-    }
-
     void InitNav(){
-        if (!_initialized) {
-            _initialized = true;
+        if (!initialized) {
+            initialized = true;
             Debug.Log("INTIALIZING NAVIGATION!!!");
             Node[] allNodes = FindObjectsByType<Node>(FindObjectsSortMode.None);
             Debug.Log("NODES: " + allNodes.Length);
             Node closestNode = ReturnClosestNode(allNodes, transform.position);
             Debug.Log("closest: " + closestNode.gameObject.name);
-            Node target = FindObjectOfType<DiamondBehavior>().GetComponent<Node>();
+            Node target = FindAnyObjectByType<DiamondBehavior>().GetComponent<Node>();
             Debug.Log("target: " + target.gameObject.name);
             //set neighbor nodes for all nodes
             foreach (Node node in allNodes) {
@@ -72,7 +56,7 @@ public class NavController : MonoBehaviour {
                 //increase search distance for neighbors
                 maxDistance += .1f;
                 Debug.Log("Increasing search distance: " + maxDistance);
-                _initialized = false;
+                initialized = false;
                 InitNav();
                 return;
             }
@@ -83,7 +67,6 @@ public class NavController : MonoBehaviour {
             }
             //activate first node
             path[0].Activate(true);
-            _initializedComplete = true;
         }
     }
 
