@@ -9,10 +9,10 @@ public class Node : MonoBehaviour {
 
     [Header("A*")]
     public List<Node> neighbors = new List<Node>();
-    public float FCost { get { return GCost + HCost; } }
-    public float HCost { get; set; }
-    public float GCost { get; set; }
-    public float Cost { get; set; }
+    public float totalCost { get { return pathCost + heuristicCost; } }
+    public float heuristicCost { get; set; }
+    public float pathCost { get; set; }
+    public float traversalCost { get; set; }
     public Node Parent { get; set; }
 
     //next node in navigation list
@@ -26,7 +26,10 @@ public class Node : MonoBehaviour {
         //save scale
         scale = transform.localScale;
         //check if destination
-        if (GetComponent<DiamondBehavior>() != null) isDestination = true;
+        if (GetComponent<Destination>() != null)
+        {
+            isDestination = true;
+        } 
 #if UNITY_EDITOR
         pos = transform.position;
 #endif
@@ -46,10 +49,13 @@ public class Node : MonoBehaviour {
     }
 
     public void FindNeighbors(float maxDistance) {
-        foreach (Node node in FindObjectsByType<Node>(FindObjectsSortMode.None)) {
-            if (Vector3.Distance(node.pos, this.pos) < maxDistance) {
+    neighbors.Clear(); // Clear previous neighbors
+    foreach (Node node in FindObjectsByType<Node>(FindObjectsSortMode.None)) {
+        if (node != this && Vector3.Distance(node.pos, this.pos) < maxDistance) {
+            if (!neighbors.Contains(node)) { // Prevent duplicate entries
                 neighbors.Add(node);
             }
         }
     }
+}
 }
