@@ -5,7 +5,6 @@ using UnityEngine.UI;
 public class NavController : MonoBehaviour
 {
     public AStar AStar;
-    private Transform destination;
     public bool initialized = false;
     private List<Node> path = new List<Node>();
     public List<Destination> destinations = new List<Destination>();
